@@ -85,12 +85,12 @@ BTAction::on_cleanup(const rclcpp_lifecycle::State & previous_state)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 BTAction::on_activate(const rclcpp_lifecycle::State & previous_state)
 {
-  tree_ = factory_.createTreeFromFile(bt_xml_file_, blackboard_);
-
   for (int i = 0; i < get_arguments().size(); i++) {
     std::string argname = "arg" + std::to_string(i);
     blackboard_->set(argname, get_arguments()[i]);
   }
+
+  tree_ = factory_.createTreeFromFile(bt_xml_file_, blackboard_);
 
   if (get_parameter("bt_file_logging").as_bool() ||
     get_parameter("bt_minitrace_logging").as_bool())
