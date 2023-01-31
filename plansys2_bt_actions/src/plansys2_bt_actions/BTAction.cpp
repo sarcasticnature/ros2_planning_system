@@ -38,6 +38,7 @@ BTAction::BTAction(
     "plugins", std::vector<std::string>({}));
   declare_parameter<bool>("bt_file_logging", false);
   declare_parameter<bool>("bt_minitrace_logging", false);
+  declare_parameter<std::string>("bt_logging_directory", "/tmp");
 #ifdef ZMQ_FOUND
   declare_parameter<bool>("enable_groot_monitoring", true);
   declare_parameter<int>("publisher_port", -1);
@@ -95,14 +96,14 @@ BTAction::on_activate(const rclcpp_lifecycle::State & previous_state)
   if (get_parameter("bt_file_logging").as_bool() ||
     get_parameter("bt_minitrace_logging").as_bool())
   {
-    auto temp_path = std::filesystem::temp_directory_path();
-    std::filesystem::path node_name_path = get_name();
-    std::filesystem::create_directories(temp_path / node_name_path);
+    std::filesystem::path logging_path = get_parameter("bt_logging_directory").as_string();
+    logging_path = logging_path / std::filesystem::path(get_name());
+    std::filesystem::create_directories(logging_path);
 
     auto now_time_t =
       std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::stringstream filename;
-    filename << "/tmp/" << get_name() << "/bt_trace_";
+    filename << logging_path.string() << "/bt_trace_";
     filename << std::put_time(std::localtime(&now_time_t), "%Y_%m_%d__%H_%M_%S");
 
     if (get_parameter("bt_file_logging").as_bool()) {
